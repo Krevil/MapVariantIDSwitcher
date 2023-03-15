@@ -1,0 +1,60 @@
+﻿<Window x:Class="MapVariantIDSwitcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MapVariantIDSwitcher"
+        mc:Ignorable="d"
+        Title="Map Variant ID Switcher" Background="#FF757171" SizeToContent="WidthAndHeight" ResizeMode="CanMinimize" Initialized="Window_Initialized">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="Preferences" Click="Preferences_Click"/>
+        </Menu>
+        <Grid Grid.Row="1" Background="#FF949494">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <ComboBox x:Name="EngineComboBox" Grid.Row="0" Grid.ColumnSpan="2" Height="25" SelectionChanged="EngineComboBox_SelectionChanged" ItemsSource="{Binding Path=HaloEngines}" Initialized="EngineComboBox_Initialized">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Path=Name}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Border VerticalAlignment="Top" Grid.Column="0" Grid.Row="1" Height="25" Width="400" BorderBrush="#FF707070" BorderThickness="1">
+                <TextBlock x:Name="InputModMap" Text=""  Background="Gainsboro"/>
+            </Border>
+            <Button x:Name="InputModButton" Content="Set Mod Map" Grid.Column="1" Grid.Row="1" Height="25" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" Click="InputModButton_Click"/>
+            <Border VerticalAlignment="Top" Grid.Column="0" Grid.Row="2" Height="25" Width="400" BorderBrush="#FF707070" BorderThickness="1">
+                <TextBlock x:Name="InputMapVariant" Text=""  Background="Gainsboro"/>
+            </Border>
+            <Button x:Name="InputVariantButton" Content="Set Map Variant" Grid.Column="1" Grid.Row="2" Height="25" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" Click="InputVariantButton_Click"/>
+            <Border VerticalAlignment="Top" Grid.Column="0" Grid.Row="4" Height="25" Width="400" BorderBrush="#FF707070" BorderThickness="1">
+                <TextBlock x:Name="OutputFolder" Text=""  Background="Gainsboro"/>
+            </Border>
+            <Button x:Name="OutputFolderButton" Content="Set Output Folder" Grid.Column="1" Grid.Row="4" Height="25" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" Click="OutputFolderButton_Click"/>
+            <Button x:Name="ProcessVariantButton" Content="Switch Variant ID" Height="80" Grid.ColumnSpan="2" Grid.Row="5" Click="ProcessVariantButton_Click" FontSize="24"/>
+            <Border Grid.Row="6" Grid.ColumnSpan="2" Height="25" BorderBrush="#FF707070" BorderThickness="1">
+                <TextBlock Text="Output Window" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+            <Border Grid.Row="7" Grid.ColumnSpan="2" Height="200" BorderBrush="#FF707070" BorderThickness="1">
+                <TextBlock x:Name="OutputTextBlock"  Text="" Background="#FF0C0C0C" Initialized="OutputTextBlock_Initialized" Foreground="#FFCCCCCC"/>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
