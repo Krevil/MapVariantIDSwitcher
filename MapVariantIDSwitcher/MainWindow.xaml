@@ -14,7 +14,7 @@
         <Menu Grid.Row="0">
             <MenuItem Header="Preferences" Click="Preferences_Click"/>
         </Menu>
-        <Grid Grid.Row="1" Background="#FF949494">
+        <Grid Grid.Row="1" Background="Gainsboro">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -28,8 +28,10 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition Height="1"/>
             </Grid.RowDefinitions>
-            <ComboBox x:Name="EngineComboBox" Grid.Row="0" Grid.ColumnSpan="2" Height="25" SelectionChanged="EngineComboBox_SelectionChanged" ItemsSource="{Binding Path=HaloEngines}" Initialized="EngineComboBox_Initialized">
+            <TextBlock Text="Game Engine:" Grid.Row="0" HorizontalAlignment="Left" Margin="3,3,0,22" Grid.RowSpan="2" FontWeight="Bold" FontSize="14"/>
+            <ComboBox x:Name="EngineComboBox" Grid.Row="0" Grid.ColumnSpan="2" Height="25" HorizontalAlignment="Right" Width="375" SelectionChanged="EngineComboBox_SelectionChanged" ItemsSource="{Binding Path=HaloEngines}" Initialized="EngineComboBox_Initialized">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Path=Name}"/>

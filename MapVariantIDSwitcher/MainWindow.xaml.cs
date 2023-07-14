@@ -17,12 +17,11 @@ namespace MapVariantIDSwitcher
     /// </summary>
     public partial class MainWindow : Window
     {
-        public HaloEngineManager haloEngineManager = new HaloEngineManager();
+        public HaloEngineManager? haloEngineManager;
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = haloEngineManager;
         }
 
         private void InputModButton_Click(object sender, RoutedEventArgs e)
@@ -96,7 +95,7 @@ namespace MapVariantIDSwitcher
             }
             if (MapVariantManager.SwitchMapIds(InputMapVariant.Text, OutputFolder.Text) == true)
             {
-                OutputTextBlock.Text += "Successfully switched variant " + MapVariantManager.ManagedMapVariant.Name + " to use " + MapVariantManager.ModMap.Title.GetValueOrDefault("Neutral") + "\n";
+                OutputTextBlock.Text += $"Successfully switched variant {(MapVariantManager.ManagedMapVariant != null ? MapVariantManager.ManagedMapVariant.Name : "" )} to use {((MapVariantManager.ModMap != null && MapVariantManager.ModMap.Title != null) ? MapVariantManager.ModMap.Title.GetValueOrDefault("Neutral") : "")}\n";
             }
         }
 
@@ -124,6 +123,8 @@ namespace MapVariantIDSwitcher
             }
             else
             {
+                haloEngineManager = new HaloEngineManager();
+                DataContext = haloEngineManager;
                 OutputTextBlock.Text += "Loaded Excession Dlls\n";
             }
         }
@@ -162,7 +163,7 @@ namespace MapVariantIDSwitcher
             _engine = engine;
             _name = name;
             DllName = dllName;
-            engine.LoadDll("bin\\" + dllName + ".dll");
+            engine.LoadDll($"bin\\{dllName}.dll");
         }
     }
 
@@ -173,6 +174,7 @@ namespace MapVariantIDSwitcher
         private static Excession.HaloShellInterface.ManagedGameEngineDll Halo4Dll = new Excession.HaloShellInterface.ManagedGameEngineDll(ManagedUFL.EGameEngine.Halo4);
         private static Excession.HaloShellInterface.ManagedGameEngineDll Halo2ADll = new Excession.HaloShellInterface.ManagedGameEngineDll(ManagedUFL.EGameEngine.Halo2A);
         private static Excession.HaloShellInterface.ManagedGameEngineDll Halo3Dll = new Excession.HaloShellInterface.ManagedGameEngineDll(ManagedUFL.EGameEngine.Halo3);
+        private static Excession.HaloShellInterface.ManagedGameEngineDll Halo3ODSTDll = new Excession.HaloShellInterface.ManagedGameEngineDll(ManagedUFL.EGameEngine.Halo3ODST);
 
         public List<HaloEngine> HaloEngines { get; set; } = new List<HaloEngine>();
         public static HaloEngine? SelectedEngine;
@@ -183,6 +185,7 @@ namespace MapVariantIDSwitcher
             HaloEngines.Add(new HaloEngine(Halo4Dll, "Halo 4", "halo4"));
             HaloEngines.Add(new HaloEngine(Halo2ADll, "Halo 2 Anniversary", "groundhog"));
             HaloEngines.Add(new HaloEngine(Halo3Dll, "Halo 3", "halo3"));
+            HaloEngines.Add(new HaloEngine(Halo3ODSTDll, "Halo 3 ODST", "halo3odst"));
         }
     }
 
@@ -222,13 +225,17 @@ namespace MapVariantIDSwitcher
 
         public static string? LoadModMap(string modMapPath)
         {
-            string modMapJsonText = "";
+            string modMapJsonText;
             using (FileStream fs = new FileStream(modMapPath, FileMode.Open))
             {
                 using (StreamReader sr = new StreamReader(fs))
                 {
                     modMapJsonText = sr.ReadToEnd();
                 }
+            }
+            if (modMapJsonText == null)
+            {
+                return null;
             }
             ModMap = JsonSerializer.Deserialize<ModMapJson>(modMapJsonText);
             if (ModMap == null)
