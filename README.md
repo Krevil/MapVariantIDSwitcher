@@ -7,7 +7,7 @@ I have set the application up so that you can use it with every game in MCC that
 
 ## Install
 
-Place it within your Excession install folder. It needs to be there so that it can use the ManagedUFL.dll file which I cannot distribute.
+Place it within your Excession install folder. It needs to be there so that it can use the Excession DLL files which I cannot distribute.
 
 ## Usage
 * Set the Game Engine for the game you're targeting
