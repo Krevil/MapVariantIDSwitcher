@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.ComponentModel;
 using System.Windows.Controls;
 using MapVariantIDSwitcher.Windows;
+using ManagedUFL;
+using System.Diagnostics;
 
 namespace MapVariantIDSwitcher
 {
@@ -78,9 +80,14 @@ namespace MapVariantIDSwitcher
                 MessageBox.Show("You must select a game engine");
                 return;
             }
-            if (InputModMap.Text.Length <= 0)
+            if (InputModMap.Text.Length <= 0 && UseBuiltInMapIDCheckBox.IsChecked != true)
             {
                 MessageBox.Show("You must select an input mod json file");
+                return;
+            }
+            if (BuiltInMapIDComboBox.SelectedIndex < 0 && UseBuiltInMapIDCheckBox.IsChecked == true)
+            {
+                MessageBox.Show("You must select a map id from the dropdown");
                 return;
             }
             if (InputMapVariant.Text.Length <= 0)
@@ -93,10 +100,21 @@ namespace MapVariantIDSwitcher
                 MessageBox.Show("You must select an output folder");
                 return;
             }
-            if (MapVariantManager.SwitchMapIds(InputMapVariant.Text, OutputFolder.Text) == true)
+            if (UseBuiltInMapIDCheckBox.IsChecked == true)
             {
-                OutputTextBlock.Text += $"Successfully switched variant {(MapVariantManager.ManagedMapVariant != null ? MapVariantManager.ManagedMapVariant.Name : "" )} to use {((MapVariantManager.ModMap != null && MapVariantManager.ModMap.Title != null) ? MapVariantManager.ModMap.Title.GetValueOrDefault("Neutral") : "")}\n";
+                if (MapVariantManager.SwitchMapIds(InputMapVariant.Text, OutputFolder.Text, (e_builtin_map_id)BuiltInMapIDComboBox.SelectedItem) == true)
+                {
+                    OutputTextBlock.Text += $"Successfully switched variant {(MapVariantManager.ManagedMapVariant != null ? MapVariantManager.ManagedMapVariant.Name : "")} to use {BuiltInMapIDComboBox.SelectedItem}\n";
+                }
             }
+            else
+            {
+                if (MapVariantManager.SwitchMapIds(InputMapVariant.Text, OutputFolder.Text) == true)
+                {
+                    OutputTextBlock.Text += $"Successfully switched variant {(MapVariantManager.ManagedMapVariant != null ? MapVariantManager.ManagedMapVariant.Name : "")} to use {((MapVariantManager.ModMap != null && MapVariantManager.ModMap.Title != null) ? MapVariantManager.ModMap.Title.GetValueOrDefault("Neutral") : "")}\n";
+                }
+            }
+            
         }
 
         private void OutputTextBlock_Initialized(object sender, EventArgs e)
@@ -107,6 +125,7 @@ namespace MapVariantIDSwitcher
         private void EngineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HaloEngineManager.SelectedEngine = (HaloEngine)((ComboBox)sender).SelectedItem;
+            OutputTextBlock.Text += "Loaded " + HaloEngineManager.SelectedEngine.Name + " Dll\n";
             Properties.Settings.Default.DefaultEngine = EngineComboBox.SelectedIndex;
             Properties.Settings.Default.Save();
         }
@@ -138,6 +157,33 @@ namespace MapVariantIDSwitcher
         private void EngineComboBox_Initialized(object sender, EventArgs e)
         {
             EngineComboBox.SelectedIndex = Properties.Settings.Default.DefaultEngine;
+        }
+
+        private void UseBuiltInMapIDCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            ModMapGrid.Visibility = Visibility.Collapsed;
+            BuiltInMapIDComboBox.Visibility = Visibility.Visible;
+        }
+
+        private void BuiltInMapIDComboBox_Initialized(object sender, EventArgs e)
+        {
+            foreach (e_builtin_map_id id in Enum.GetValues(typeof(e_builtin_map_id)))
+            {
+                BuiltInMapIDComboBox.Items.Add(id);
+            }
+        }
+
+        private void UseBuiltInMapIDCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ModMapGrid.Visibility = Visibility.Visible;
+            BuiltInMapIDComboBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void OutputTextBlock_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            OutputTextBlock.Focus();
+            OutputTextBlock.CaretIndex = OutputTextBlock.Text.Length;
+            OutputTextBlock.ScrollToEnd();
         }
     }
 
@@ -177,7 +223,18 @@ namespace MapVariantIDSwitcher
         private static Excession.HaloShellInterface.ManagedGameEngineDll Halo3ODSTDll = new Excession.HaloShellInterface.ManagedGameEngineDll(ManagedUFL.EGameEngine.Halo3ODST);
 
         public List<HaloEngine> HaloEngines { get; set; } = new List<HaloEngine>();
-        public static HaloEngine? SelectedEngine;
+        private static HaloEngine? selectedEngine;
+        public static HaloEngine? SelectedEngine
+        {
+            get 
+            {
+                return selectedEngine;
+            }
+            set 
+            { 
+                selectedEngine = value;
+            }
+        }
         
         public HaloEngineManager()
         {
@@ -273,8 +330,27 @@ namespace MapVariantIDSwitcher
                 MessageBox.Show("Could not parse mod JSON file");
                 return false;
             }
-            
             ManagedUFL.ManagedHaloMapId targetMapId = ManagedUFL.ManagedHaloMapId.FromGuid(ModMap.MapGuid);
+            ManagedMapVariant.ForceSetHaloMapId(targetMapId);
+            HaloEngineManager.SelectedEngine.Engine.SaveVariantToFile(ManagedMapVariant, Path.Combine(outputPath, Path.GetFileName(mvarPath)));
+            return true;
+        }
+
+        public static bool SwitchMapIds(string mvarPath, string outputPath, e_builtin_map_id id)
+        {
+            if (HaloEngineManager.SelectedEngine == null)
+            {
+                MessageBox.Show("Could not select an engine to use");
+                return false;
+            }
+
+            if (ManagedMapVariant == null)
+            {
+                MessageBox.Show("You must load a map variant before you can switch map Ids");
+                return false;
+            }
+
+            ManagedUFL.ManagedHaloMapId targetMapId = ManagedUFL.ManagedHaloMapId.FromBuiltInMapAndInsertionPointKvp(new KeyValuePair<e_builtin_map_id, short>(id, 0));
             ManagedMapVariant.ForceSetHaloMapId(targetMapId);
             HaloEngineManager.SelectedEngine.Engine.SaveVariantToFile(ManagedMapVariant, Path.Combine(outputPath, Path.GetFileName(mvarPath)));
             return true;

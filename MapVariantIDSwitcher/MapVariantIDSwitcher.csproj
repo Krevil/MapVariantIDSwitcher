@@ -16,12 +16,10 @@
 
   <ItemGroup>
     <Reference Include="Excession">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Excession\Excession.dll</HintPath>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\Excession\Excession.dll</HintPath>
     </Reference>
     <Reference Include="ManagedUFL">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Excession\ManagedUFL.dll</HintPath>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\Excession\ManagedUFL.dll</HintPath>
     </Reference>
   </ItemGroup>
 
